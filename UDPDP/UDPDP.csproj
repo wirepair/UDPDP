@@ -66,6 +66,10 @@
       <Project>{C4F4189E-5891-4634-93B4-E44B786D1AFB}</Project>
       <Name>Decryptor</Name>
     </ProjectReference>
+    <ProjectReference Include="..\UDPDPLogWriter\UDPDPLogWriter.csproj">
+      <Project>{0E751856-7F05-421C-BCE3-BE7F49649124}</Project>
+      <Name>UDPDPLogWriter</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

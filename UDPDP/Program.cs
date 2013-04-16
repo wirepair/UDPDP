@@ -35,7 +35,7 @@ namespace UDPDP
            Console.WriteLine("Possible commands:");
            Console.WriteLine();
            p.WriteOptionDescriptions(Console.Out);
-           Console.WriteLine("Example:\nudp_proxy_log -s ip.ip.ip.ip:port -d ip.ip.ip.ip:port -o <outfile> --dll=Decryptor.dll");
+           Console.WriteLine("Example:\nUDPDP -s ip.ip.ip.ip:port -d ip.ip.ip.ip:port -o <outfile> --dll=Decryptor.dll");
            Environment.Exit(-1);
        }
 
@@ -46,7 +46,7 @@ namespace UDPDP
                 ShowHelp(p, "Source *and* destionation are both required.");
             }
             Console.WriteLine(upo.src);
-            if (upo.output != null && !(upo.format.Equals("raw") || upo.format.Equals("asciibin") || upo.format.Equals("dll")))
+            if (upo.output != null && !(upo.format.Equals("json") || upo.format.Equals("asciibin") || upo.format.Equals("dll")))
             {
                 ShowHelp(p, string.Format("Output format is incorrect. {0}...", upo.format));
             }
@@ -161,7 +161,7 @@ namespace UDPDP
                     "Allows decrypt() dll function to modify the data.",
                     v => upo.modify = v != null },
                 {"f|format=",
-                    "how to write the data: raw|asciibin|dll",
+                    "how to write the data: json|asciibin|dll",
                     v => upo.format = v },
                 { "h|?|help",  "show this message and exit", 
                    v => show_help = v != null },

@@ -13,17 +13,21 @@ namespace Decryptor
     {
         delegate byte[] DecryptDelegate(int sender_flag, byte[] input_buffer, int buffer_size, int packet_index);
         DecryptDelegate DecryptorDecrypt;
+
         delegate int DecryptInitDelegate();
         DecryptInitDelegate DecryptorInit;
+        
         IntPtr dll_decrypt;
         IntPtr dll_init;
 
-        private bool LoadUnmanagedDll(string dll)
+        public bool LoadUnmanagedDll(string dll)
         {
             int hModule = DLLManager.LoadLibrary(dll);
             if (hModule == 0)
             {
-                Console.WriteLine("Unable to load the dll.");
+                int err = Marshal.GetLastWin32Error();
+                Console.WriteLine(err);
+                Console.WriteLine("LoadLibrary Failed for {0}", dll);
                 return false;
             }
 
@@ -33,6 +37,7 @@ namespace Decryptor
                 Console.WriteLine("Unable to find the address of init");
                 return false;
             }
+
             DecryptorInit = (DecryptInitDelegate)Marshal.GetDelegateForFunctionPointer(dll_init, typeof(DecryptInitDelegate));
             if (DecryptorInit == null)
             {

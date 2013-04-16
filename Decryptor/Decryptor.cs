@@ -24,6 +24,7 @@ namespace Decryptor
             {
                 return LoadManagedDll(dll);
             }
+            Console.WriteLine("Attempting to load an unmanaged DLL.");
             return LoadUnmanagedDll(dll);
         }
 
@@ -43,10 +44,11 @@ namespace Decryptor
             return null;
         }
 
-        private static IDecryptor LoadUnmanagedDll(string dll)
+        private static UnManagedDecryptor LoadUnmanagedDll(string dll)
         {
             UnManagedDecryptor umd = new UnManagedDecryptor();
-            return (IDecryptor)umd;
+            umd.LoadUnmanagedDll(dll);
+            return umd;
         }
 
         private static bool IsManagedDll(string dll)
@@ -54,6 +56,7 @@ namespace Decryptor
             try
             {
                 Assembly assembly = Assembly.LoadFile(dll);
+                Console.WriteLine("Loading a managed DLL...");
                 return true;
             }
             catch (BadImageFormatException)
