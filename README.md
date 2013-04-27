@@ -1,7 +1,7 @@
 # UDPDP
 
 This solution contains projects for the UDP Decrypting Proxy. It contains 4 projects, the service, a log replayer and two sample decryption dlls. One demonstrates how to modify traffic using a Managed DLL (C#), the other unmanaged (c). It is strongly recommended you log data in *json* format, so you can work with UDPDPReplay. 
-Note to successfully build, you'll need to add references to projects from my HackingProjects repo, or just download the Binaries folder which should contain everything.
+Note to successfully build, you'll need to add references to projects from my https://github.com/wirepair/HackingProjects repo, or just download the Binaries folder which should contain everything.
 
 ## Usage
 	Usage: UDPDP [OPTIONS]
