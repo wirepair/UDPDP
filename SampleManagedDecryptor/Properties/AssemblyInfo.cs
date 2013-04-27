@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("SampleDecryptor")]
+[assembly: AssemblyTitle("SampleManagedDecryptor")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("SampleDecryptor")]
+[assembly: AssemblyProduct("SampleManagedDecryptor")]
 [assembly: AssemblyCopyright("Copyright ©  2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("2749bd2c-b34a-40dd-bd47-6190e5872b0e")]
+[assembly: Guid("fe5152b8-0264-44c2-92ee-03a828406ffd")]
 
 // Version information for an assembly consists of the following four values:
 //

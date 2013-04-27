@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Mono.Options;
-
+using UDPDPLogWriter;
+// author @_wirepair : github.com/wirepair
+// date: 04272013 
+// copyright: ME AND MINE but i guess you can use it :D.
 namespace UDPPDReplay
 {
     class Program
     {
-        
-
         static void ShowHelp(OptionSet p, string error)
         {
             if (error != null)
@@ -22,7 +23,7 @@ namespace UDPPDReplay
             Console.WriteLine("Possible commands:");
             Console.WriteLine();
             p.WriteOptionDescriptions(Console.Out);
-            Console.WriteLine("Example:\nUDPDPReplay -i <cap.log> -o <outfile> --dll=Decryptor.dll");
+            Console.WriteLine("Example:\nUDPDPReplay -i <cap.log> -f <format> -o <outfile> --of=asciinbin --dll=C:\\path\to\\Decryptor.dll");
             Environment.Exit(-1);
         }
 
@@ -39,9 +40,15 @@ namespace UDPPDReplay
                 { "i|input=",
                     "logfile where raw data was captured.",
                     v => decrypto.input = v },
-                { "o|output",
+                { "f|format=",
+                    "logfile format for how the data was captured.",
+                    v => decrypto.format = v },
+                { "o|output=",
                     "Where to store the decrypted output.",
                     v => decrypto.output = v },
+                {"of|outputformat=",
+                    "Output format (json|asciibin).",
+                    v => decrypto.outputformat = v},
                 { "h|?|help",  "show this message and exit", 
                    v => show_help = v != null },
             };
@@ -50,11 +57,8 @@ namespace UDPPDReplay
             {
                 ShowHelp(p, null);
             }
-            if (decrypto.dll == null)
-            {
-                ShowHelp(p, "dll is required.");
-            }
-            else if (decrypto.input == null)
+            
+            if (decrypto.input == null)
             {
                 ShowHelp(p, "input is required.");
             }
@@ -62,8 +66,30 @@ namespace UDPPDReplay
             {
                 ShowHelp(p, "output is required.");
             }
-            dfp = new DecryptFileProcessor(decrypto);
-            dfp.ProcessData();
+            else if (decrypto.format == null)
+            {
+                ShowHelp(p, "format is required.");
+            }
+
+            if (decrypto.dll != null)
+            {
+                dfp = new DecryptFileProcessor(decrypto);
+                dfp.ProcessData();
+            }
+            else
+            {
+                IULogWriter logger = null;
+                if (decrypto.format.Equals("json"))
+                {
+                    logger = new JSONLogWriter();
+                    logger.Open(decrypto.input, "r");
+                    Transmissions trans = logger.ReadTransmission();
+                    foreach (LogEvent e in trans.LogEventList)
+                    {
+                        Console.WriteLine("{0} {1} {2}", e.sender, e.count, Encoding.ASCII.GetString(e.data));
+                    }
+                }
+            }
         }
     }
 }

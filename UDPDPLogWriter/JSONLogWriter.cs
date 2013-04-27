@@ -7,7 +7,9 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 
-
+// author @_wirepair : github.com/wirepair
+// date: 04272013 
+// copyright: ME AND MINE but i guess you can use it :D.
 namespace UDPDPLogWriter
 {
     public class JSONLogWriter : IULogWriter
@@ -17,6 +19,7 @@ namespace UDPDPLogWriter
 
         protected FileStream stream = null;
         protected DataContractJsonSerializer ser = null;
+        protected Transmissions trans = new Transmissions();
         protected int position = 0;
 
         public JSONLogWriter()
@@ -29,12 +32,12 @@ namespace UDPDPLogWriter
                 if (mode.Equals("r"))
                 {
                     stream = new FileStream(filename, FileMode.Open);
-                    ser = new DataContractJsonSerializer(typeof(LogEvent));
+                    ser = new DataContractJsonSerializer(typeof(Transmissions));
                 }
                 else
                 {
                     stream = new FileStream(filename, FileMode.Create);
-                    ser = new DataContractJsonSerializer(typeof(LogEvent));
+                    ser = new DataContractJsonSerializer(typeof(Transmissions));
                 }
             }
             catch (Exception e)
@@ -45,6 +48,13 @@ namespace UDPDPLogWriter
             return 0;
         }
 
+        /**
+         * A really terribly way of logging, basically we append each event
+         * to our Transmissions object then write out it's entire contents
+         * every time. Depending on how much traffic is actually being sent,
+         * it may be necessary to write out each transmission to its own
+         * file.
+         **/
         public void LogTransmission(byte[] buffer, string sender, int count)
         {
             LogEvent log = new LogEvent();
@@ -58,12 +68,14 @@ namespace UDPDPLogWriter
                 log.sender = SERVER;
             }
             log.data = buffer;
-            ser.WriteObject(stream, log);
+            trans.LogEventList.Add(log);
+            stream.Position = 0; // overwrite everything
+            ser.WriteObject(stream, trans);
         }
 
-        public LogEvent ReadTransmission()
+        public Transmissions ReadTransmission()
         {
-            return (LogEvent)ser.ReadObject(stream);
+            return (Transmissions)ser.ReadObject(stream);
         }
 
         public void Close()

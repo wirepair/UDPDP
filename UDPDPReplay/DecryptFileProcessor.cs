@@ -4,7 +4,11 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using Decryptor;
-
+using UDPDPLogWriter;
+using System.Runtime.InteropServices;
+// author @_wirepair : github.com/wirepair
+// date: 04272013 
+// copyright: ME AND MINE but i guess you can use it :D.
 namespace UDPPDReplay
 {
 
@@ -13,18 +17,39 @@ namespace UDPPDReplay
         public string dll;
         public string input;
         public string output;
+        public string format;
+        public string outputformat;
     }
 
     class DecryptFileProcessor
     {
-        protected int CLIENT = 0;
-        protected int SERVER = 1;
+        protected int SERVER = 0;
+        protected int CLIENT = 1;
         protected DecryptOptions decrypto;
         protected IDecryptor Decrypt = null;
+        protected IULogWriter reader = null;
+        protected IULogWriter writer = null;
         
         public DecryptFileProcessor(DecryptOptions decrypto)
         {
             this.decrypto = decrypto;
+            if (!this.decrypto.output.Equals(""))
+            {
+                if (this.decrypto.outputformat.Equals("json"))
+                {
+                    writer = new JSONLogWriter();
+                }
+                else if (this.decrypto.outputformat.Equals("asciibin"))
+                {
+                    writer = new HexLogWriter();
+                }
+                else
+                {
+                    Console.WriteLine("Error only asciibin and json supported!");
+                    return;
+                }
+                writer.Open(this.decrypto.output, "w");
+            }
         }
         
         public int SetDecryptor(string dll)
@@ -45,11 +70,47 @@ namespace UDPPDReplay
             {
                 return ret;
             }
-
-            using (StreamReader reader = new StreamReader(decrypto.input))
+            if (decrypto.format.Equals("json"))
             {
-                StringBuilder packet = new StringBuilder();
+                var output = new IntPtr();
+                var output_size = 0;
+                string sender = "";
+                reader = new JSONLogWriter();
+                reader.Open(decrypto.input, "r");
+                Transmissions trans = reader.ReadTransmission();
+                foreach (LogEvent e in trans.LogEventList)
+                {
+                    try
+                    {
+                        if (e.sender == CLIENT)
+                        {
+                            sender = "client";
+                        }
+                        else
+                        {
+                            sender = "server";
+                        }
+                        Console.WriteLine("sender: {0} packet: {1} length: {2}", sender, e.count, e.data.Length);
+                        Decrypt.Decrypt(e.sender, e.data, e.data.Length, e.count, ref output, ref output_size);
+                        byte[] decrypted = new byte[output_size];
+                        Marshal.Copy(output, decrypted, 0, output_size);
+                        Console.WriteLine("\nAfter decrypt: {0}", Encoding.ASCII.GetString(decrypted));
+                        Console.WriteLine("--------------------------------------");
+                        if (writer != null)
+                        {
+                            writer.LogTransmission(decrypted, sender, e.count);
+                        }
+                    }
+                    finally
+                    {
+                        if (output != IntPtr.Zero)
+                        {
+                            Marshal.FreeCoTaskMem(output);
+                        }
+                    }
+                }
             }
+            
             return 0;
         }
     }

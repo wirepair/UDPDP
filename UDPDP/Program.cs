@@ -7,6 +7,9 @@ using System.Linq;
 using System.Text;
 using Mono.Options;
 
+// author @_wirepair : github.com/wirepair
+// date: 04272013 
+// copyright: ME AND MINE but i guess you can use it :D.
 namespace UDPDP
 {
     class Program
@@ -35,7 +38,7 @@ namespace UDPDP
            Console.WriteLine("Possible commands:");
            Console.WriteLine();
            p.WriteOptionDescriptions(Console.Out);
-           Console.WriteLine("Example:\nUDPDP -s ip.ip.ip.ip:port -d ip.ip.ip.ip:port -o <outfile> --dll=Decryptor.dll");
+           Console.WriteLine("Example:\nUDPDP -s ip.ip.ip.ip:port -d ip.ip.ip.ip:port -o <outfile> -f json --dll=C:\\Path\\To\\SampleDecryptor.dll");
            Environment.Exit(-1);
        }
 

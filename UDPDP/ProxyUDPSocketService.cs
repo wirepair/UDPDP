@@ -10,14 +10,18 @@ using SocketService;
 using Decryptor;
 using UDPDPLogWriter;
 
+// author @_wirepair : github.com/wirepair
+// date: 04272013 
+// copyright: ME AND MINE but i guess you can use it :D.
 namespace UDPDP
 {
+    // The UDP proxy client code
     class UdpProxyClient : UDPClientService
     {
         const int SERVER = 0;
         ProxyUDPSocketService puss = null;
         StateObject saved_client_so = null;
-        // set's a reference of the server so we can send data back on ProcessBuffer
+        // sets a reference of the server so we can send data back on ProcessBuffer
         public UdpProxyClient(IPEndPoint iep, ProxyUDPSocketService puss)
             : base(iep)
         {
@@ -44,11 +48,15 @@ namespace UDPDP
             int count = puss.IncrementServerCount();
             puss.LogData(real_client_so.buffer, "server", count);
 
+            if (puss.Decrypt != null)
+            {
+                puss.DecryptData(real_client_so, state, "server", count);
+            }
             // fire off data back to the real client.
             puss.SendData(real_client_so, new AsyncCallback(puss.OnSent));
         }
     }
-
+    // The udp proxy server code.
     class ProxyUDPSocketService : UDPServerService
     {
         #region Properties
@@ -63,7 +71,7 @@ namespace UDPDP
         protected int serverCount = 0;
         protected int clientCount = 0;
         protected UdpProxyClient upc;
-        protected IDecryptor Decrypt = null;
+        public IDecryptor Decrypt = null;
 
         const int CLIENT = 1;
         
@@ -113,6 +121,34 @@ namespace UDPDP
                 return -1;
             }
             return Decrypt.DecryptInit();
+        }
+
+        public void DecryptData(StateObject new_state, StateObject state, string sender, int count)
+        {
+            IntPtr output = IntPtr.Zero;
+            int output_size = 0;
+            try
+            {
+                int ret = Decrypt.Decrypt(CLIENT, new_state.buffer, state.recvSize, count, ref output, ref output_size);
+                byte[] decrypted = new byte[output_size];
+                Marshal.Copy(output, decrypted, 0, output_size);
+                LogData(decrypted, "client", count);
+                // if we allow modification, take the response data from our decryption dll.
+                if (modify.Equals(true))
+                {
+                    Console.WriteLine("Modified data!");
+                    Console.WriteLine("x: {0}", Encoding.ASCII.GetString(decrypted));
+                    new_state.buffer = decrypted;
+                    new_state.recvSize = output_size;
+                }
+            }
+            finally
+            {
+                if (output != IntPtr.Zero)
+                {
+                    Marshal.FreeCoTaskMem(output);
+                }
+            }
         }
         #region Logging & Packet Tracking Related Code
 
@@ -164,14 +200,7 @@ namespace UDPDP
 
             if (Decrypt != null)
             {
-                byte[] decrypted = Decrypt.Decrypt(CLIENT, initialRemoteSO.buffer, state.recvSize, count);
-                LogData(decrypted, "client", count);
-                if (modify == true)
-                {
-                    Console.WriteLine("Modified data!");
-                    Console.WriteLine("x: {0}", Encoding.ASCII.GetString(decrypted));
-                    initialRemoteSO.buffer = decrypted;
-                }
+                DecryptData(initialRemoteSO, state, "client", count);
             }
             // set the state of the real client for our proxy client.
             upc.SetRealClientState(state);

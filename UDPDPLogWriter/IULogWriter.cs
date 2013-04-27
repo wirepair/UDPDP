@@ -15,19 +15,20 @@ namespace UDPDPLogWriter
         public int count;
     }
     */
-   
+    [Serializable]
+    public class Transmissions
+    {
+        public List<LogEvent> LogEventList = new List<LogEvent>();
+    }
 
-    [DataContract]
+    [Serializable]
     public class LogEvent
     {
-        [DataMember]
-        internal byte[] data;
+        public byte[] data;
 
-        [DataMember]
-        internal int sender;
+        public int sender;
 
-        [DataMember]
-        internal int count;
+        public int count;
     }
 
     public interface IULogWriter 
@@ -35,6 +36,8 @@ namespace UDPDPLogWriter
         int Open(string filename, string mode);
 
         void LogTransmission(byte[] buffer, string sender, int count);
+
+        Transmissions ReadTransmission();
 
         void Close();
 

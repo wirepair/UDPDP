@@ -6,7 +6,9 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Reflection;
 
-
+// author @_wirepair : github.com/wirepair
+// date: 04272013 
+// copyright: ME AND MINE but i guess you can use it :D.
 namespace Decryptor
 {
     public static class Decryptor
@@ -31,13 +33,25 @@ namespace Decryptor
         private static IDecryptor LoadManagedDll(string dll)
         {
             Assembly assembly = Assembly.LoadFile(dll);
-
-            foreach (Type t in assembly.GetTypes())
+            Console.WriteLine("Assembly for {0} loaded.", dll);         
+            try
             {
-                if (typeof(IDecryptor).IsAssignableFrom(t))
+                foreach (Type t in assembly.GetTypes())
                 {
-
-                    return Activator.CreateInstance(t) as IDecryptor;
+                    if (typeof(IDecryptor).IsAssignableFrom(t))
+                    {
+                        return Activator.CreateInstance(t) as IDecryptor;
+                    }
+                }
+            }
+            catch (ReflectionTypeLoadException ex)
+            {
+                if (ex is System.Reflection.ReflectionTypeLoadException)
+                {
+                    var typeLoadException = ex as ReflectionTypeLoadException;
+                    var loaderExceptions = typeLoadException.LoaderExceptions; 
+                    Console.WriteLine("Reflection Type Load Exception");
+                    Console.WriteLine(loaderExceptions[0].Message);
                 }
             }
             Console.WriteLine("Unable to get Decryptor type!");

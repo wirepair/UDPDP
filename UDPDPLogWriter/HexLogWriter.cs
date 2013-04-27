@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-
+// author @_wirepair : github.com/wirepair
+// date: 04272013 
+// copyright: ME AND MINE but i guess you can use it :D.
 namespace UDPDPLogWriter
 {
     public class HexLogWriter : IULogWriter
@@ -45,6 +47,11 @@ namespace UDPDPLogWriter
             _writer.Write(header);
             _writer.Flush();
             LogHexBuffer(_writer, buffer);
+        }
+
+        public Transmissions ReadTransmission()
+        {
+            throw new NotImplementedException();
         }
 
         public void LogHexBuffer(StreamWriter writer, byte[] buffer)
