@@ -137,7 +137,7 @@ namespace UDPDP
                 int ret = Decrypt.Decrypt(sender_flag, new_state.buffer, state.recvSize, count, ref output, ref output_size);
                 byte[] decrypted = new byte[output_size];
                 Marshal.Copy(output, decrypted, 0, output_size);
-                LogData(decrypted, sender, count);
+                
                 // if we allow modification, take the response data from our decryption dll.
                 if (modify.Equals(true))
                 {
