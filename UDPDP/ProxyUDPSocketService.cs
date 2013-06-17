@@ -18,7 +18,7 @@ namespace UDPDP
     // The UDP proxy client code
     class UdpProxyClient : UDPClientService
     {
-        const int SERVER = 0;
+        
         ProxyUDPSocketService puss = null;
         StateObject saved_client_so = null;
         // sets a reference of the server so we can send data back on ProcessBuffer
@@ -74,7 +74,7 @@ namespace UDPDP
         public IDecryptor Decrypt = null;
 
         const int CLIENT = 1;
-        
+        const int SERVER = 0;
         #endregion
 
         #region Constructors
@@ -129,10 +129,15 @@ namespace UDPDP
             int output_size = 0;
             try
             {
-                int ret = Decrypt.Decrypt(CLIENT, new_state.buffer, state.recvSize, count, ref output, ref output_size);
+                int sender_flag = CLIENT;
+                if (sender.Equals("server"))
+                {
+                    sender_flag = SERVER;
+                }
+                int ret = Decrypt.Decrypt(sender_flag, new_state.buffer, state.recvSize, count, ref output, ref output_size);
                 byte[] decrypted = new byte[output_size];
                 Marshal.Copy(output, decrypted, 0, output_size);
-                LogData(decrypted, "client", count);
+                LogData(decrypted, sender, count);
                 // if we allow modification, take the response data from our decryption dll.
                 if (modify.Equals(true))
                 {
